@@ -103,8 +103,9 @@ def commit_changes(defaults: Defaults, do_positions=False):
         else:
             log.critical("No changes since last backup")
 
-        # finally make sure the group can write to everything
-        os.system(f"chmod -R g+w {defaults.backup_folder}")
+        # finally make sure the group can write to everything you created
+        # this will fail on files not owned by the user so eat stderr
+        os.system(f"chmod -R g+w {defaults.backup_folder} 2> /dev/null")
 
     except BaseException:
         msg = "ERROR: repository not updated"
