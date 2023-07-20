@@ -9,6 +9,8 @@ from .defaults import Defaults
 
 log = getLogger(__name__)
 
+CONFIG="safe.directory='*'"
+
 
 class Colours:
     HEADER = "\033[95m"
@@ -26,8 +28,8 @@ def compare_changes(defaults: Defaults, pmacs):
     try:
         git_repo = Repo(defaults.backup_folder)
 
-        paths = "*" + defaults.positions_suffix
-        diff = git_repo.index.diff(None, create_patch=True, paths=paths)
+        paths = '*' + defaults.positions_suffix
+        diff = git_repo.index.diff(None, create_patch=True, paths=paths, config=CONFIG)
 
         output = "\n --------- Motor Position Changes ----------"
         file_out = "\n --------- Mxx62 differences ----------"
@@ -50,9 +52,12 @@ def compare_changes(defaults: Defaults, pmacs):
 
         # commit the most recent positions comparison for a record of
         # where motors had moved to before the restore
-        comparison_file = str(defaults.motion_folder / defaults.positions_file)
-        git_repo.index.add([comparison_file])
-        git_repo.index.commit("commit of positions comparisons by dls-backup-bl")
+        comparison_file = str(
+            defaults.motion_folder / defaults.positions_file)
+        git_repo.index.add([comparison_file], config=CONFIG)
+        git_repo.index.commit(
+            "commit of positions comparisons by dls-backup-bl",
+            config=CONFIG)
 
         print(f"{Colours.FAIL}{output}{Colours.END_C}")
 
@@ -69,12 +74,14 @@ def commit_changes(defaults: Defaults, do_positions=False):
         try:
             git_repo = Repo(defaults.backup_folder)
         except InvalidGitRepositoryError:
-            log.warning("There is no git repo - creating a repo")
-            git_repo = Repo.init(defaults.backup_folder)
+            log.error("There is no git repo - creating a repo")
+            git_repo = Repo.init(defaults.backup_folder, config=CONFIG)
 
         # Gather up any changes
         untracked_files = git_repo.untracked_files
-        modified_files = [diff.a_blob.path for diff in git_repo.index.diff(None)]
+        modified_files = [
+            diff.a_blob.path for diff in git_repo.index.diff(None, config=CONFIG)
+        ]
 
         ignores = [defaults.log_file.name]
         if not do_positions:
@@ -97,8 +104,9 @@ def commit_changes(defaults: Defaults, do_positions=False):
                 for File in modified_files:
                     log.info("\t" + File)
 
-            git_repo.index.add(change_list)
-            git_repo.index.commit("commit of devices backup by dls-backup-bl")
+            git_repo.index.add(change_list, config=CONFIG)
+            git_repo.index.commit(
+                "commit of devices backup by dls-backup-bl", config=CONFIG)
             log.critical("Committed changes")
         else:
             log.critical("No changes since last backup")
