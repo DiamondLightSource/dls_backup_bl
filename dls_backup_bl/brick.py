@@ -4,8 +4,9 @@ import shutil
 import telnetlib
 from logging import getLogger
 
-from dls_pmacanalyse import GlobalConfig
-from dls_pmacanalyse.dls_pmacanalyse import Pmac, PmacReadError
+from dls_pmacanalyse.globalconfig import GlobalConfig
+from dls_pmacanalyse.pmac import Pmac
+from dls_pmacanalyse.errors import PmacReadError
 from dls_pmaclib.dls_pmacremote import (
     PmacEthernetInterface,
     PmacTelnetInterface,
