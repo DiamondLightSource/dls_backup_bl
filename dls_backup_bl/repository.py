@@ -9,7 +9,8 @@ from .defaults import Defaults
 
 log = getLogger(__name__)
 
-CONFIG="safe.directory='*'"
+
+CONFIG_PATH = Path(__file__).parent / "global_git_config"
 
 
 class Colours:
@@ -23,13 +24,21 @@ class Colours:
     UNDERLINE = "\033[4m"
 
 
+def set_home():
+    """
+    Set home in order to override git global confg settings
+    """
+    os.environ["HOME"] = str(CONFIG_PATH)
+
+
 # noinspection PyBroadException
 def compare_changes(defaults: Defaults, pmacs):
     try:
+        set_home()
         git_repo = Repo(defaults.backup_folder)
 
-        paths = '*' + defaults.positions_suffix
-        diff = git_repo.index.diff(None, create_patch=True, paths=paths, config=CONFIG)
+        paths = "*" + defaults.positions_suffix
+        diff = git_repo.index.diff(None, create_patch=True, paths=paths)
 
         output = "\n --------- Motor Position Changes ----------"
         file_out = "\n --------- Mxx62 differences ----------"
@@ -52,12 +61,11 @@ def compare_changes(defaults: Defaults, pmacs):
 
         # commit the most recent positions comparison for a record of
         # where motors had moved to before the restore
-        comparison_file = str(
-            defaults.motion_folder / defaults.positions_file)
-        git_repo.index.add([comparison_file], config=CONFIG)
+        comparison_file = str(defaults.motion_folder / defaults.positions_file)
+        git_repo.index.add([comparison_file])
         git_repo.index.commit(
             "commit of positions comparisons by dls-backup-bl",
-            config=CONFIG)
+        )
 
         print(f"{Colours.FAIL}{output}{Colours.END_C}")
 
@@ -71,17 +79,17 @@ def compare_changes(defaults: Defaults, pmacs):
 def commit_changes(defaults: Defaults, do_positions=False):
     # Link to beamline backup git repository in the motion area
     try:
+        set_home()
+        
         try:
             git_repo = Repo(defaults.backup_folder)
         except InvalidGitRepositoryError:
             log.error("There is no git repo - creating a repo")
-            git_repo = Repo.init(defaults.backup_folder, config=CONFIG)
+            git_repo = Repo.init(defaults.backup_folder)
 
         # Gather up any changes
         untracked_files = git_repo.untracked_files
-        modified_files = [
-            diff.a_blob.path for diff in git_repo.index.diff(None, config=CONFIG)
-        ]
+        modified_files = [diff.a_blob.path for diff in git_repo.index.diff(None)]
 
         ignores = [defaults.log_file.name]
         if not do_positions:
@@ -104,9 +112,8 @@ def commit_changes(defaults: Defaults, do_positions=False):
                 for File in modified_files:
                     log.info("\t" + File)
 
-            git_repo.index.add(change_list, config=CONFIG)
-            git_repo.index.commit(
-                "commit of devices backup by dls-backup-bl", config=CONFIG)
+            git_repo.index.add(change_list)
+            git_repo.index.commit("commit of devices backup by dls-backup-bl")
             log.critical("Committed changes")
         else:
             log.critical("No changes since last backup")
@@ -126,6 +133,8 @@ def commit_changes(defaults: Defaults, do_positions=False):
 # noinspection PyBroadException
 def restore_positions(defaults: Defaults):
     try:
+        set_home()
+        
         git_repo = Repo(defaults.backup_folder)
         cli = git_repo.git
 

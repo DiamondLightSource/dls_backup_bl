@@ -10,7 +10,7 @@
             // example of passing arguments - change to suit your needs
             "args": [
                 "-b",
-                "i16"
+                "i99"
             ],
         }
     ]
