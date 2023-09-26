@@ -137,6 +137,8 @@ class Brick:
 
     def restore_positions(self):
         log.info(f"Sending motor positions for {self.desc}.")
+        
+        positionSFList = self.getPositionSF(self.controller,self.defaults)
 
         for attempt_num in range(self.defaults.retries):
             try:
@@ -145,6 +147,21 @@ class Brick:
                     # munge into format for sendSeries and only send commands
                     # that match restore_commands
                     lines = f.readlines()
+
+                    # Mx62 in some cases cannot be written directly to the controller as the maximum
+                    # acceptable value appears to be 2^35. Here the value of Mx62 is calculated as a factor
+                    # of 1/(ix08*23) is written to the pmac as an expression
+                    for i,l in enumerate(lines):
+                        newL = l.split('=')
+                        newL = [a.strip() for a in newL]
+                        if '62' in newL[0]:
+                            # Determine axis number M variable is related to
+                            if newL[0] ==  'M' or 'm':
+                                axisNo = int(int(newL[0][1:])/100)
+                                newL[1] = int(newL[1])*(1/positionSFList[axisNo])
+                                newL[1] = f'{int(newL[1])}/{1/positionSFList[axisNo]}'
+                                lines[i] = f'{newL[0]} = {newL[1]}\n'
+
                     pmc = list(
                         [
                             (n + 1, l[:-1])
@@ -226,15 +243,9 @@ class Brick:
     get_i08 = {i: re.compile(rf"i{i:d}08 *= *(-?[0-9]+)") for i in range(1, 33)}
 
     @classmethod
-    def diff_to_counts(cls, brick: str, diff_output: str, defaults: Defaults):
-        """
-        converts a diff output for Mxx62 file to a readable list of changes
-        of counts per axis
-        :param brick: name of the brick
-        :param diff_output: output from a diff of the _positions file.
-        :param defaults: a Defaults structure with names of folders etc.
-        :return: str: human readable list of count differences per axis
-        """
+    def getPositionSF(cls,brick,defaults: Defaults):
+
+        scaleFactors = [0]*33
         pmc_file = defaults.motion_folder / (brick + ".pmc")
         try:
             with pmc_file.open("r") as f:
@@ -245,6 +256,26 @@ class Brick:
             )
             pmc = ""
 
+        for axis in range(1,33):
+            r = re.search(cls.get_i08[axis], pmc)
+            a = int(r[1])
+            if r:
+                scaleFactors[axis] = int(r[1]) * 32
+            else:
+                scaleFactors[axis]=1024
+        return scaleFactors
+
+    @classmethod
+    def diff_to_counts(cls, brick: str, diff_output: str, defaults: Defaults):
+        """
+        converts a diff output for Mxx62 file to a readable list of changes
+        of counts per axis
+        :param brick: name of the brick
+        :param diff_output: output from a diff of the _positions file.
+        :param defaults: a Defaults structure with names of folders etc.
+        :return: str: human readable list of count differences per axis
+        """
+        scaleFactors = cls.getPositionSF(brick,defaults)
         output = ""
 
         old_plcs = {
@@ -266,13 +297,8 @@ class Brick:
         }
 
         for m, val in new_values.items():
-            r = re.search(cls.get_i08[m], pmc)
-            if r:
-                factor = int(r[1]) * 32
-            else:
-                factor = 1024
-            counts = int(val / factor)
-            diff = int((val - old_values[m]) / factor)
+            counts = int(val / scaleFactors[m])
+            diff = int((val - old_values[m]) / scaleFactors[m])
             if math.fabs(diff) > 0:
                 output += f"Axis {m} changed by {diff} counts to {counts}\n"
 
