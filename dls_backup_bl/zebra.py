@@ -19,7 +19,7 @@ def backup_zebra(name: str, defaults: Defaults):
             folder = defaults.zebra_folder / name
 
             # todo may need a (empty) temp path and then copy to zebra_folder
-            caput('%s:%s' % (str(name), 'CONFIG_FILE'), folder, datatype=999)
+            caput('%s:%s' % (str(name), 'CONFIG_FILE'), str(folder), datatype=999)
             caput('%s:%s' % (str(name), 'CONFIG_WRITE.PROC'), 1, timeout=60,
                   wait=True)
             # Store button PV triggered successfully
