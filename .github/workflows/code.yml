@@ -59,7 +59,7 @@ jobs:
         run: pytest tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           name: ${{ matrix.python }}/${{ matrix.os }}
           files: cov.xml
@@ -113,7 +113,7 @@ jobs:
           docker cp test:/project/cov.xml .
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           name: 3.10-locked/ubuntu-latest
           files: cov.xml
