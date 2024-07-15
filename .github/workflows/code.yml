@@ -130,7 +130,7 @@ jobs:
         run: for i in ${{ steps.meta.outputs.tags }}; do docker run ${i} --version; done
 
       - name: Upload build files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*
