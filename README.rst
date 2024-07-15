@@ -20,9 +20,9 @@ a Beamline:
 ============== ==============================================================
 Confluence     https://confluence.diamond.ac.uk/x/WoxKBg
 PyPI           ``pip install dls_backup_bl``
-Source code    https://github.com/dls-controls/dls_backup_bl
+Source code    https://github.com/DiamondLightSource/dls_backup_bl
 Documentation  https://epics-containers.github.io/dls_backup_bl
-Releases       https://github.com/dls-controls/dls_backup_bl/releases
+Releases       https://github.com/DiamondLightSource/dls_backup_bl/releases
 ============== ==============================================================
 
 How to Use
@@ -78,16 +78,16 @@ backups can be retrieved with git commands.
 
 
 
-.. |code_ci| image:: https://github.com/dls-controls/dls_backup_bl/workflows/Code%20CI/badge.svg?branch=main
-    :target: https://github.com/dls-controls/dls_backup_bl/actions?query=workflow%3A%22Code+CI%22
+.. |code_ci| image:: https://github.com/DiamondLightSource/dls_backup_bl/workflows/Code%20CI/badge.svg?branch=main
+    :target: https://github.com/DiamondLightSource/dls_backup_bl/actions?query=workflow%3A%22Code+CI%22
     :alt: Code CI
 
-.. |docs_ci| image:: https://github.com/dls-controls/dls_backup_bl/workflows/Docs%20CI/badge.svg?branch=main
-    :target: https://github.com/dls-controls/dls_backup_bl/actions?query=workflow%3A%22Docs+CI%22
+.. |docs_ci| image:: https://github.com/DiamondLightSource/dls_backup_bl/workflows/Docs%20CI/badge.svg?branch=main
+    :target: https://github.com/DiamondLightSource/dls_backup_bl/actions?query=workflow%3A%22Docs+CI%22
     :alt: Docs CI
 
-.. |coverage| image:: https://codecov.io/gh/dls-controls/dls_backup_bl/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/dls-controls/dls_backup_bl
+.. |coverage| image:: https://codecov.io/gh/DiamondLightSource/dls_backup_bl/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/DiamondLightSource/dls_backup_bl
     :alt: Test Coverage
 
 .. |pypi_version| image:: https://img.shields.io/pypi/v/dls_backup_bl.svg
@@ -101,4 +101,4 @@ backups can be retrieved with git commands.
 ..
     Anything below this line is used when viewing README.rst and will be replaced
     when included in index.rst
-See https://dls-controls.github.io/dls_backup_bl for more detailed documentation.
+See https://DiamondLightSource.github.io/dls_backup_bl for more detailed documentation.

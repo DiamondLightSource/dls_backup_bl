@@ -7,7 +7,7 @@ filing a new one. If you have a great idea but it involves big changes, please
 file a ticket before making a pull request! We want to make sure you don't spend
 your time coding something that might not fit the scope of the project.
 
-.. _GitHub: https://github.com/dls-controls/dls_backup_bl/issues
+.. _GitHub: https://github.com/DiamondLightSource/dls_backup_bl/issues
 
 Running the tests
 -----------------
@@ -17,7 +17,7 @@ To run in a container
 
 Use vscode devcontainer as follows::
 
-    $ git clone git://github.com/dls-controls/dls_backup_bl.git
+    $ git clone git://github.com/DiamondLightSource/dls_backup_bl.git
     $ vscode dls_backup_bl
     Click on 'Reopen in Container' when prompted
     In a vscode Terminal:
@@ -30,7 +30,7 @@ To run locally
 Get the source source code and run the unit tests directly
 on your workstation as follows::
 
-    $ git clone git://github.com/dls-controls/dls_backup_bl.git
+    $ git clone git://github.com/DiamondLightSource/dls_backup_bl.git
     $ cd dls_backup_bl
     $ virtualenv .venv
     $ source .venv/bin/activate
@@ -135,7 +135,7 @@ To make a new release, please follow this checklist:
 Note that tagging and pushing to the main branch has the same effect except that
 you will not get the option to edit the release notes.
 
-.. _release: https://github.com/dls-controls/dls_backup_bl/releases
+.. _release: https://github.com/DiamondLightSource/dls_backup_bl/releases
 
 
 Checking Dependencies
