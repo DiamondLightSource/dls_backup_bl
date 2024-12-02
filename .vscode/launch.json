@@ -1,17 +1,23 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "dls-backup-bl",
-            "type": "python",
+            "name": "Debug Unit Test",
+            "type": "debugpy",
             "request": "launch",
-            "module": "dls_backup_bl.backup",
             "justMyCode": false,
-            // example of passing arguments - change to suit your needs
-            "args": [
-                "-b",
-                "i99"
+            "program": "${file}",
+            "purpose": [
+                "debug-test"
             ],
+            "console": "integratedTerminal",
+            "env": {
+                // Enable break on exception when debugging tests (see: tests/conftest.py)
+                "PYTEST_RAISE": "1",
+            },
         }
     ]
 }
