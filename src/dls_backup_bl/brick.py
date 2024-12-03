@@ -4,9 +4,9 @@ import shutil
 import telnetlib
 from logging import getLogger
 
+from dls_pmacanalyse.errors import PmacReadError
 from dls_pmacanalyse.globalconfig import GlobalConfig
 from dls_pmacanalyse.pmac import Pmac
-from dls_pmacanalyse.errors import PmacReadError
 from dls_pmaclib.dls_pmacremote import (
     PmacEthernetInterface,
     PmacTelnetInterface,
@@ -44,7 +44,7 @@ class Brick:
             self.pti.disconnect()
 
     def _check_connection(self):
-        for attempt_num in range(self.defaults.retries):
+        for _attempt_num in range(self.defaults.retries):
             try:
                 t = telnetlib.Telnet()
                 t.open(self.server, self.port, timeout=2)
@@ -137,8 +137,8 @@ class Brick:
 
     def restore_positions(self):
         log.info(f"Sending motor positions for {self.desc}.")
-        
-        positionSFList = self.getPositionSF(self.controller,self.defaults)
+
+        positionSFList = self.getPositionSF(self.controller, self.defaults)
 
         for attempt_num in range(self.defaults.retries):
             try:
@@ -151,28 +151,26 @@ class Brick:
                     # Mx62 in some cases cannot be written directly to the controller as the maximum
                     # acceptable value appears to be 2^35. Here the value of Mx62 is calculated as a factor
                     # of 1/(ix08*23) is written to the pmac as an expression
-                    for i,l in enumerate(lines):
-                        newL = l.split('=')
+                    for i, line in enumerate(lines):
+                        newL = line.split("=")
                         newL = [a.strip() for a in newL]
-                        if '62' in newL[0]:
+                        if "62" in newL[0]:
                             # Determine axis number M variable is related to
-                            if newL[0] ==  'M' or 'm':
-                                axisNo = int(int(newL[0][1:])/100)
-                                newL[1] = int(newL[1])*(1/positionSFList[axisNo])
-                                newL[1] = f'{int(newL[1])}/{1/positionSFList[axisNo]}'
-                                lines[i] = f'{newL[0]} = {newL[1]}\n'
+                            if newL[0] == "M" or "m":
+                                axisNo = int(int(newL[0][1:]) / 100)
+                                newL[1] = int(newL[1]) * (1 / positionSFList[axisNo])
+                                newL[1] = f"{int(newL[1])}/{1/positionSFList[axisNo]}"
+                                lines[i] = f"{newL[0]} = {newL[1]}\n"
 
-                    pmc = list(
-                        [
-                            (n + 1, l[:-1])
-                            for n, l in enumerate(lines)
-                            if re.search(self.restore_commands, l)
-                        ]
-                    )
+                    pmc = [
+                        (n + 1, line[:-1])
+                        for n, line in enumerate(lines)
+                        if re.search(self.restore_commands, line)
+                    ]
                 # send ctrl K to kill all axes (otherwise the servo loop
                 # will fight the change of position)
                 self.pti.sendCommand("\u000b")
-                for (success, line, cmd, response) in self.pti.sendSeries(pmc):
+                for success, _line, cmd, response in self.pti.sendSeries(pmc):
                     if not success:
                         log.critical(
                             f"ERROR: command '{cmd}' failed for {self.desc} ("
@@ -243,9 +241,8 @@ class Brick:
     get_i08 = {i: re.compile(rf"i{i:d}08 *= *(-?[0-9]+)") for i in range(1, 33)}
 
     @classmethod
-    def getPositionSF(cls,brick,defaults: Defaults):
-
-        scaleFactors = [0]*33
+    def getPositionSF(cls, brick, defaults: Defaults):
+        scaleFactors = [0] * 33
         pmc_file = defaults.motion_folder / (brick + ".pmc")
         try:
             with pmc_file.open("r") as f:
@@ -256,13 +253,12 @@ class Brick:
             )
             pmc = ""
 
-        for axis in range(1,33):
+        for axis in range(1, 33):
             r = re.search(cls.get_i08[axis], pmc)
-            a = int(r[1])
-            if r:
+            if r is not None:
                 scaleFactors[axis] = int(r[1]) * 32
             else:
-                scaleFactors[axis]=1024
+                scaleFactors[axis] = 1024
         return scaleFactors
 
     @classmethod
@@ -275,7 +271,7 @@ class Brick:
         :param defaults: a Defaults structure with names of folders etc.
         :return: str: human readable list of count differences per axis
         """
-        scaleFactors = cls.getPositionSF(brick,defaults)
+        scaleFactors = cls.getPositionSF(brick, defaults)
         output = ""
 
         old_plcs = {

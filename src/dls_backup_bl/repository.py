@@ -80,7 +80,7 @@ def commit_changes(defaults: Defaults, do_positions=False):
     # Link to beamline backup git repository in the motion area
     try:
         set_home()
-        
+
         try:
             git_repo = Repo(defaults.backup_folder)
         except InvalidGitRepositoryError:
@@ -134,7 +134,7 @@ def commit_changes(defaults: Defaults, do_positions=False):
 def restore_positions(defaults: Defaults):
     try:
         set_home()
-        
+
         git_repo = Repo(defaults.backup_folder)
         cli = git_repo.git
 
